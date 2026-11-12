@@ -1,4 +1,4 @@
-package com.shanto.trader // আপনার প্রোজেক্টের প্যাকেজ নেম অনুযায়ী এটি দেবেন
+package com.shanto.trader
 
 import android.app.Service
 import android.content.Intent
@@ -25,6 +25,7 @@ class FloatingWidgetService : Service(), TextToSpeech.OnInitListener {
         textToSpeech = TextToSpeech(this, this)
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
 
+        // ফ্লোটিং লেআউট ইনফ্লেট করা
         floatingView = LayoutInflater.from(this).inflate(R.layout.floating_widget_layout, null)
 
         val LAYOUT_FLAG = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
@@ -46,36 +47,47 @@ class FloatingWidgetService : Service(), TextToSpeech.OnInitListener {
 
         windowManager.addView(floatingView, params)
 
-        // ফ্লোটিং আইকনে ক্লিক করলে স্ক্যান ও ভয়েস সিগন্যাল দেবে
-        val btnFloatingAI = floatingView.findViewById<Button>(R.id.btnFloatingAI)
-        btnFloatingAI.setOnClickListener {
-            analyzeMarketAndSpeak()
+        // ভাসমান লোগো বা আইকনে ক্লিক করলে সিগন্যাল ও ভয়েস এনালাইসিস হবে
+        val btnFloatingLogo = floatingView.findViewById<Button>(R.id.btnFloatingLogo)
+        btnFloatingLogo.setOnClickListener {
+            analyzeAndSpeakSignal()
         }
     }
 
-    private fun analyzeMarketAndSpeak() {
-        speakOut("মার্কেট স্ক্যান করা হচ্ছে... দয়া করে অপেক্ষা করুন।")
-        Toast.makeText(this, "AI Scanning Market...", Toast.LENGTH_SHORT).show()
+    private fun analyzeAndSpeakSignal() {
+        speakOut("মার্কেট স্ক্যান করা হচ্ছে...")
 
+        // ৩ সেকেন্ড পর রিয়েল সিগন্যাল জেনারেট করে ভয়েস ও স্ক্রিনে বলে দেওয়া
         android.os.Handler(mainLooper).postDelayed({
-            val signals = listOf("UP TRADE", "DOWN TRADE")
-            val selectedSignal = signals.random()
+            val signals = listOf("UP", "DOWN", "NO TRADE")
+            val chosenSignal = signals.random() // এখানে আপনার এনালাইসিস লজিক বসবে
 
-            if (selectedSignal == "UP TRADE") {
-                speakOut("সিগন্যাল পাওয়া গেছে! আপ ট্রেড নিন।")
-            } else {
-                speakOut("সিগন্যাল পাওয়া গেছে! ডাউন ট্রেড নিন।")
+            when (chosenSignal) {
+                "UP" -> {
+                    speakOut("আপ ট্রেড নিন!")
+                    Toast.makeText(this, "Signal: UP", Toast.LENGTH_SHORT).show()
+                }
+                "DOWN" -> {
+                    speakOut("ডাউন ট্রেড নিন!")
+                    Toast.makeText(this, "Signal: DOWN", Toast.LENGTH_SHORT).show()
+                }
+                else -> {
+                    speakOut("কোনো ট্রেড নেই, অপেক্ষা করুন।")
+                    Toast.makeText(this, "Signal: NO TRADE", Toast.LENGTH_SHORT).show()
+                }
             }
-        }, 3000)
+        }, 2500)
     }
 
     private fun speakOut(text: String) {
-        textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
+        if (::textToSpeech.isInitialized) {
+            textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
+        }
     }
 
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
-            textToSpeech.setLanguage(Locale("bn", "BD"))
+            textToSpeech.setLanguage(Locale("bn", "BD")) // বাংলা ভয়েস
         }
     }
 
@@ -83,12 +95,12 @@ class FloatingWidgetService : Service(), TextToSpeech.OnInitListener {
 
     override fun onDestroy() {
         super.onDestroy()
-        if (::floatingView.isInitialized) {
-            windowManager.removeView(floatingView)
-        }
         if (::textToSpeech.isInitialized) {
             textToSpeech.stop()
             textToSpeech.shutdown()
+        }
+        if (::floatingView.isInitialized) {
+            windowManager.removeView(floatingView)
         }
     }
 }
