@@ -6,8 +6,8 @@
 
     <Button
         android:id="@+id/btnFloatingAI"
-        android:layout_width="65dp"
-        android:layout_height="65dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:background="@android:drawable/ic_menu_compass"
         android:backgroundTint="#FF0000"
         android:elevation="8dp" />
