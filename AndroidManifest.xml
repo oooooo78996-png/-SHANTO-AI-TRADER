@@ -1,7 +1,17 @@
 <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
 <application ...>
-    <!-- আপনার অন্যান্য অ্যাক্টিভিটি -->
+    <!-- আপনার মেইন অ্যাক্টিভিটি -->
+    <activity
+        android:name=".MainActivity"
+        android:exported="true">
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+    </activity>
+
+    <!-- ফ্লোটিং সার্ভিস -->
     <service 
         android:name=".FloatingWidgetService" 
         android:enabled="true" 
