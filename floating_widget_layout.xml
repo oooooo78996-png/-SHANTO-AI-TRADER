@@ -5,11 +5,11 @@
     android:orientation="vertical">
 
     <Button
-        android:id="@+id/btnFloatingAI"
+        android:id="@+id/btnFloatingLogo"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:background="@android:drawable/ic_menu_compass"
-        android:backgroundTint="#FF0000"
-        android:elevation="8dp" />
+        android:backgroundTint="#00FF00"
+        android:elevation="10dp" />
 
 </LinearLayout>
