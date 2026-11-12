@@ -25,7 +25,6 @@ class FloatingWidgetService : Service(), TextToSpeech.OnInitListener {
         textToSpeech = TextToSpeech(this, this)
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
 
-        // ফ্লোটিং উইন্ডো লেআউট ইনফ্লেট করা
         floatingView = LayoutInflater.from(this).inflate(R.layout.floating_widget_layout, null)
 
         val LAYOUT_FLAG = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
@@ -42,12 +41,12 @@ class FloatingWidgetService : Service(), TextToSpeech.OnInitListener {
         )
 
         params.gravity = Gravity.TOP or Gravity.START
-        params.x = 50
+        params.x = 100
         params.y = 200
 
         windowManager.addView(floatingView, params)
 
-        // ফ্লোটিং বাটনে ক্লিক করলে স্ক্যান ও ভয়েস সিগন্যাল দেওয়ার লজিক
+        // ফ্লোটিং আইকনে ক্লিক করলে স্ক্যান ও ভয়েস সিগন্যাল দেবে
         val btnFloatingAI = floatingView.findViewById<Button>(R.id.btnFloatingAI)
         btnFloatingAI.setOnClickListener {
             analyzeMarketAndSpeak()
@@ -58,7 +57,6 @@ class FloatingWidgetService : Service(), TextToSpeech.OnInitListener {
         speakOut("মার্কেট স্ক্যান করা হচ্ছে... দয়া করে অপেক্ষা করুন।")
         Toast.makeText(this, "AI Scanning Market...", Toast.LENGTH_SHORT).show()
 
-        // ৩ সেকেন্ড পর এনালাইসিস করে সিগন্যাল ভয়েসে বলে দেবে
         android.os.Handler(mainLooper).postDelayed({
             val signals = listOf("UP TRADE", "DOWN TRADE")
             val selectedSignal = signals.random()
@@ -77,7 +75,7 @@ class FloatingWidgetService : Service(), TextToSpeech.OnInitListener {
 
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
-            textToSpeech.setLanguage(Locale("bn", "BD")) // বাংলা ভাষা সেটআপ
+            textToSpeech.setLanguage(Locale("bn", "BD"))
         }
     }
 
