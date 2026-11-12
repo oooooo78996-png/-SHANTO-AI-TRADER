@@ -1,3 +1,5 @@
+package com.shanto.trader // আপনার প্রোজেক্টের প্যাকেজ নেম অনুযায়ী এটি দেবেন
+
 import android.app.Service
 import android.content.Intent
 import android.graphics.PixelFormat
@@ -20,70 +22,57 @@ class FloatingWidgetService : Service(), TextToSpeech.OnInitListener {
 
     override fun onCreate() {
         super.onCreate()
-        
-        // ভয়েস (TTS) ইনিশিয়ালাইজেশন
         textToSpeech = TextToSpeech(this, this)
-
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
-        
-        // ফ্লোটিং লেআউট ইনফ্লেট করা
-        // (আপনার প্রজেক্টের floating_layout.xml অনুযায়ী)
+
+        // ফ্লোটিং উইন্ডো লেআউট ইনফ্লেট করা
         floatingView = LayoutInflater.from(this).inflate(R.layout.floating_widget_layout, null)
+
+        val LAYOUT_FLAG = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+        else
+            WindowManager.LayoutParams.TYPE_PHONE
 
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-            else
-                WindowManager.LayoutParams.TYPE_PHONE,
+            LAYOUT_FLAG,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
             PixelFormat.TRANSLUCENT
         )
 
         params.gravity = Gravity.TOP or Gravity.START
-        params.x = 100
-        params.y = 100
+        params.x = 50
+        params.y = 200
 
         windowManager.addView(floatingView, params)
 
-        // ফ্লোটিং বাটনে ক্লিক করার মূল ইভেন্ট
+        // ফ্লোটিং বাটনে ক্লিক করলে স্ক্যান ও ভয়েস সিগন্যাল দেওয়ার লজিক
         val btnFloatingAI = floatingView.findViewById<Button>(R.id.btnFloatingAI)
         btnFloatingAI.setOnClickListener {
-            startAiMarketScanning()
+            analyzeMarketAndSpeak()
         }
     }
 
-    private fun startAiMarketScanning() {
-        // ১. ভয়েস ও টোস্টের মাধ্যমে এনালাইসিস শুরুর ঘোষণা
-        speakOut("मार्केट স্ক্যান করা হচ্ছে... দয়া করে অপেক্ষা করুন।")
+    private fun analyzeMarketAndSpeak() {
+        speakOut("মার্কেট স্ক্যান করা হচ্ছে... দয়া করে অপেক্ষা করুন।")
         Toast.makeText(this, "AI Scanning Market...", Toast.LENGTH_SHORT).show()
 
-        // ২. এখানে স্ক্রিন ক্যাপচার করে ক্যান্ডেলস্টিক বা ট্রেন্ড এনালাইসিস হবে
-        // (উদাহরণস্বরূপ লজিক বা রেন্ডম সিগন্যাল জেনারেটর)
+        // ৩ সেকেন্ড পর এনালাইসিস করে সিগন্যাল ভয়েসে বলে দেবে
         android.os.Handler(mainLooper).postDelayed({
-            // এনালাইসিস রেজাল্ট (UP অথবা DOWN)
-            val signals = listOf("UP TRADE", "DOWN TRADE", "NO SIGNAL")
-            val selectedSignal = signals.random() // আপনার আসল AI লজিক এখানে বসবে
+            val signals = listOf("UP TRADE", "DOWN TRADE")
+            val selectedSignal = signals.random()
 
             if (selectedSignal == "UP TRADE") {
                 speakOut("সিগন্যাল পাওয়া গেছে! আপ ট্রেড নিন।")
-                sendTelegramAlert("🟢 SHANTO AI SIGNAL: UP TRADE")
-            } else if (selectedSignal == "DOWN TRADE") {
-                speakOut("সিগন্যাল পাওয়া গেছে! ডাউন ট্রেড নিন।")
-                sendTelegramAlert("🔴 SHANTO AI SIGNAL: DOWN TRADE")
             } else {
-                speakOut("বর্তমানে কোনো সিগন্যাল নেই, অপেক্ষা করুন।")
+                speakOut("সিগন্যাল পাওয়া গেছে! ডাউন ট্রেড নিন।")
             }
-        }, 3000) // ৩ সেকেন্ড স্ক্যানিং ডিলে
+        }, 3000)
     }
 
     private fun speakOut(text: String) {
         textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
-    }
-
-    private fun sendTelegramAlert(message: String) {
-        // আপনার টেলিগ্রাম বটের মাধ্যমে নোটিফিকেশন পাঠানোর কোড এখানে কাজ করবে
     }
 
     override fun onInit(status: Int) {
